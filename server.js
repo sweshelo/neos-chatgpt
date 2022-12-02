@@ -1,31 +1,38 @@
 var server = require('ws').Server;
 var s = new server({port:5001});
-const readlineSync = require('readline-sync');
 
 s.on('connection',function(ws){
 
   console.log('hello')
 
-  readlineSync.promptCLLoop({
-    send: (text) => {
-      s.clients.forEach((client)=>{
-        client.send(text)
-      })
-    },
-    bye: () => { return true; }
-  });
-
-
   ws.on('message',function(message){
-    console.log("Received: "+message);
+    if (!ws.clientType){
+      if ( message == '[client] openai') ws.clientType = 'openai'
+      if ( message == '[client] neosvr') ws.clientType = 'neosvr'
+      console.log('clientType specified')
+    }else{
+      if(ws.clientType == 'openai'){
+        console.log( ws.clientType + message );
+        s.clients.forEach((c)=>{
+          if (c.clientType == 'neosvr'){
+            console.log('target detect')
+            c.send(' ' + message)
+          }
+        })
+      }
+      if(ws.clientType == 'neosvr'){
+        console.log( message );
+        s.clients.forEach((c)=>{
+          if (c.clientType == 'openai'){
+            c.send(' ' + message)
+          }
+        })
+      }
 
-    s.clients.forEach(function(client){
-      client.send(message+' : '+new Date());
-    });
+    }
   });
 
   ws.on('close',function(){
     console.log('I lost a client');
   });
 });
-

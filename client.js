@@ -2,16 +2,33 @@ var textarea = document.querySelector('textarea')
 var sock = new WebSocket('ws://127.0.0.1:5001');
 var msg = ""
 
+SpeechRecognition = webkitSpeechRecognition || SpeechRecognition;
+let recognition = new SpeechRecognition();
+
+recognition.lang = 'ja-JP';
+recognition.interimResults = true;
+recognition.continuous = true;
+
 sock.addEventListener('open',function(e){
   console.log('Socket 接続成功');
+  sock.send('[client] openai')
 });
 
 sock.addEventListener('message', (e)=>{
-  if( e.data.includes('[rec]')){
-    recognition.start();
-  }else{
-    send(e.data)
-    msg = e.data
+  switch(e.data.trim()){
+    case '[rec]':
+      recognition.start()
+      break;
+    case '[ja]':
+      recognition.lang = 'ja-JP'
+      break;
+    case '[en]':
+      recognition.lang = 'en-US'
+      break;
+    default:
+      send(e.data.trim())
+      msg = e.data.trim()
+      recognition.stop()
   }
   /*
   e.data.text().then((text)=>{
@@ -33,15 +50,6 @@ var mo = new MutationObserver((rec, obs) => {
     if ( add.innerText != msg ) sock.send(add.innerText)
   }
 })
-
-SpeechRecognition = webkitSpeechRecognition || SpeechRecognition;
-let recognition = new SpeechRecognition();
-
-recognition.lang = 'ja-JP';
-recognition.interimResults = true;
-recognition.continuous = true;
-
-let finalTranscript = ''; // 確定した(黒の)認識結果
 
 recognition.onresult = (event) => {
   for (let i = event.resultIndex; i < event.results.length; i++) {

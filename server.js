@@ -1,5 +1,6 @@
 var server = require('ws').Server;
 var s = new server({port:5001});
+var target = ''
 
 s.on('connection',function(ws){
 
@@ -7,28 +8,29 @@ s.on('connection',function(ws){
 
   ws.on('message',function(message){
     if (!ws.clientType){
-      if ( message == '[client] openai') ws.clientType = 'openai'
-      if ( message == '[client] neosvr') ws.clientType = 'neosvr'
-      console.log('clientType specified')
+      if ( message == '[client] openai'){
+        ws.clientType = 'openai'
+        console.log('OpenAI connected.')
+      }
+      if ( message == '[client] neosvr'){
+        ws.clientType = 'neosvr'
+        console.log('NeosVR connected.')
+      }
     }else{
-      if(ws.clientType == 'openai'){
-        console.log( ws.clientType + message );
-        s.clients.forEach((c)=>{
-          if (c.clientType == 'neosvr'){
-            console.log('target detect')
-            c.send(' ' + message)
-          }
-        })
+      switch(ws.clientType){
+        case 'openai':
+          target = 'neosvr'
+          break;
+        case 'neosvr':
+          target = 'openai'
+          break;
       }
-      if(ws.clientType == 'neosvr'){
-        console.log( message );
-        s.clients.forEach((c)=>{
-          if (c.clientType == 'openai'){
-            c.send(' ' + message)
-          }
-        })
-      }
-
+      s.clients.forEach((c)=>{
+        if (c.clientType == target){
+          console.log('target detect')
+          c.send(' ' + message)
+        }
+      })
     }
   });
 

@@ -56,6 +56,7 @@ recognition.onresult = (event) => {
     let transcript = event.results[i][0].transcript;
     if (event.results[i].isFinal) {
       send(transcript);
+      recognition.stop()
     }
   }
 }

@@ -39,7 +39,7 @@ sock.addEventListener('message', (e)=>{
 });
 
 var add= {}
-var thread = document.querySelector('.ThreadLayout__NodeWrapper-sc-wfs93o-0')
+var thread = document.querySelector('div.flex, flex-col, items-center, text-sm, h-full')
 var mo = new MutationObserver((rec, obs) => {
   for(const mut of rec){
     console.log(mut.addedNodes)
@@ -70,6 +70,6 @@ mo.observe(thread, {
 function send(text){
   textarea.value = text;
   textarea.focus();
-  document.querySelector('.PromptTextarea__PositionSubmit-sc-4snkpf-1').click();
+  document.querySelector('button.absolute').click();
 }
 

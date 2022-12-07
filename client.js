@@ -41,14 +41,8 @@ sock.addEventListener('message', (e)=>{
 var add= {}
 var thread = document.querySelector('div.flex, flex-col, items-center, text-sm, h-full')
 var mo = new MutationObserver((rec, obs) => {
-  for(const mut of rec){
-    console.log(mut.addedNodes)
-    mut.addedNodes.forEach((m)=>{
-      if ( add.innerText != m.innerText && m.innerText.trim().length > 0 ) sock.send('[terminate]')
-      add = m
-    })
-    if ( add.innerText != msg ) sock.send(add.innerText)
-  }
+  add = [...document.querySelectorAll('div.markdown, prose, light')].splice(-1)[0]
+  if ( add.innerText != msg ) sock.send(add.innerText)
 })
 
 recognition.onresult = (event) => {

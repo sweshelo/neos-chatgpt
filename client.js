@@ -1,13 +1,22 @@
 var textarea = document.querySelector('textarea')
 var sock = new WebSocket('ws://127.0.0.1:5001');
 var msg = ""
+var recognition = null
 
-SpeechRecognition = webkitSpeechRecognition || SpeechRecognition;
-let recognition = new SpeechRecognition();
+try{
+  SpeechRecognition = webkitSpeechRecognition || SpeechRecognition;
+}catch(e){
+  if ( e instanceof ReferenceError ){
+    SpeechRecognition = null
+  }
+}
 
-recognition.lang = 'ja-JP';
-recognition.interimResults = true;
-recognition.continuous = true;
+if (SpeechRecognition){
+  recognition = new SpeechRecognition()
+  recognition.lang = 'ja-JP';
+  recognition.interimResults = true;
+  recognition.continuous = true;
+}
 
 sock.addEventListener('open',function(e){
   console.log('Socket 接続成功');
@@ -28,7 +37,7 @@ sock.addEventListener('message', (e)=>{
     default:
       send(e.data.trim())
       msg = e.data.trim()
-      recognition.stop()
+      recognition && recognition.stop()
   }
   /*
   e.data.text().then((text)=>{
@@ -50,7 +59,7 @@ recognition.onresult = (event) => {
     let transcript = event.results[i][0].transcript;
     if (event.results[i].isFinal) {
       send(transcript);
-      recognition.stop()
+      recognition && recognition.stop()
     }
   }
 }

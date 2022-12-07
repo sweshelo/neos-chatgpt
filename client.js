@@ -5,17 +5,14 @@ var recognition = null
 
 try{
   SpeechRecognition = webkitSpeechRecognition || SpeechRecognition;
-}catch(e){
-  if ( e instanceof ReferenceError ){
-    SpeechRecognition = null
-  }
-}
-
-if (SpeechRecognition){
   recognition = new SpeechRecognition()
   recognition.lang = 'ja-JP';
   recognition.interimResults = true;
   recognition.continuous = true;
+}catch(e){
+  if ( e instanceof ReferenceError ){
+    SpeechRecognition = null
+  }
 }
 
 sock.addEventListener('open',function(e){
@@ -26,13 +23,13 @@ sock.addEventListener('open',function(e){
 sock.addEventListener('message', (e)=>{
   switch(e.data.trim()){
     case '[rec]':
-      recognition.start()
+      recognition && recognition.start()
       break;
     case '[ja]':
-      recognition.lang = 'ja-JP'
+      if (recognition) recognition.lang = 'ja-JP'
       break;
     case '[en]':
-      recognition.lang = 'en-US'
+      if (recognition) recognition.lang = 'en-US'
       break;
     default:
       send(e.data.trim())
